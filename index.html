@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Travel Checklist" />
+  <meta name="theme-color" content="#3b82f6" />
+  <title>Travel Checklist</title>
+
+  <style>
+    :root{
+      --blue:#2563eb;
+      --blue-light:#dbeafe;
+      --green:#16a34a;
+      --green-light:#dcfce7;
+      --red:#dc2626;
+      --red-light:#fee2e2;
+      --gray:#64748b;
+      --gray-light:#f1f5f9;
+      --border:#dbe3ef;
+      --text:#172033;
+      --card:#ffffff;
+      --bg:#eef4ff;
+      --shadow:0 10px 28px rgba(30,64,175,.10);
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg,#dfeaff 0%,#f8fbff 35%,#eef4ff 100%);
+      padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+    }
+
+    .app{
+      width:min(760px,100%);
+      margin:0 auto;
+      padding:18px 14px 36px;
+    }
+
+    .hero{
+      background:linear-gradient(135deg,#2563eb,#7c3aed);
+      color:#fff;
+      border-radius:24px;
+      padding:22px 18px;
+      box-shadow:var(--shadow);
+      margin-bottom:16px;
+    }
+
+    .hero h1{
+      margin:0 0 6px;
+      font-size:29px;
+      line-height:1.1;
+    }
+
+    .hero p{
+      margin:0;
+      opacity:.92;
+      font-size:15px;
+    }
+
+    .card{
+      background:var(--card);
+      border:1px solid rgba(219,227,239,.9);
+      border-radius:22px;
+      box-shadow:var(--shadow);
+      padding:16px;
+      margin-bottom:16px;
+    }
+
+    .date-row{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:8px;
+    }
+
+    label{
+      font-weight:800;
+      font-size:14px;
+    }
+
+    input[type="date"],
+    input[type="text"]{
+      width:100%;
+      min-height:48px;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:12px 14px;
+      font-size:17px;
+      background:#fff;
+      color:var(--text);
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#7aa7ff;
+      box-shadow:0 0 0 3px rgba(37,99,235,.12);
+    }
+
+    .legend{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .legend span{
+      font-size:13px;
+      font-weight:700;
+      padding:7px 10px;
+      border-radius:999px;
+      background:var(--gray-light);
+    }
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .section-title h2{
+      margin:0;
+      font-size:22px;
+    }
+
+    .count{
+      font-size:13px;
+      font-weight:800;
+      color:var(--gray);
+      background:var(--gray-light);
+      padding:7px 10px;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .list{
+      display:grid;
+      gap:10px;
+    }
+
+    .item{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:10px;
+      align-items:center;
+      min-height:62px;
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:10px 10px 10px 14px;
+      background:#fff;
+      transition:.2s ease;
+    }
+
+    .item.ready{
+      background:var(--green-light);
+      border-color:#86efac;
+    }
+
+    .item.skip{
+      background:var(--red-light);
+      border-color:#fca5a5;
+    }
+
+    .item-name{
+      font-size:17px;
+      font-weight:750;
+      line-height:1.25;
+      word-break:break-word;
+    }
+
+    .item.ready .item-name{
+      color:#166534;
+    }
+
+    .item.skip .item-name{
+      color:#991b1b;
+      text-decoration:line-through;
+    }
+
+    .actions{
+      display:flex;
+      gap:7px;
+    }
+
+    .state-btn{
+      width:42px;
+      height:42px;
+      border:0;
+      border-radius:13px;
+      font-size:20px;
+      font-weight:900;
+      cursor:pointer;
+      background:var(--gray-light);
+      color:var(--gray);
+    }
+
+    .state-btn.ready.active{
+      background:var(--green);
+      color:#fff;
+    }
+
+    .state-btn.skip.active{
+      background:var(--red);
+      color:#fff;
+    }
+
+    .add-row{
+      display:grid;
+      grid-template-columns:1fr auto;
+      gap:8px;
+      margin-top:14px;
+    }
+
+    .add-btn{
+      min-width:94px;
+      border:0;
+      border-radius:14px;
+      padding:0 16px;
+      font-size:16px;
+      font-weight:850;
+      color:#fff;
+      background:var(--blue);
+      cursor:pointer;
+    }
+
+    .remove-btn{
+      border:0;
+      background:transparent;
+      color:#b91c1c;
+      font-weight:800;
+      font-size:12px;
+      padding:4px 0 0;
+      cursor:pointer;
+    }
+
+    .item-wrap{
+      display:grid;
+      gap:4px;
+    }
+
+    .footer-actions{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+
+    .footer-actions button{
+      min-height:48px;
+      border-radius:14px;
+      border:0;
+      font-size:15px;
+      font-weight:850;
+      cursor:pointer;
+    }
+
+    .reset-trip{
+      background:#fff7ed;
+      color:#9a3412;
+      border:1px solid #fed7aa !important;
+    }
+
+    .clear-custom{
+      background:#f8fafc;
+      color:#475569;
+      border:1px solid var(--border) !important;
+    }
+
+    .saved-note{
+      text-align:center;
+      color:var(--gray);
+      font-size:12px;
+      margin-top:12px;
+    }
+
+    @media (max-width:480px){
+      .hero h1{font-size:25px}
+      .section-title h2{font-size:20px}
+      .item{grid-template-columns:1fr auto}
+      .state-btn{width:40px;height:40px}
+      .footer-actions{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <h1>Travel Checklist</h1>
+      <p>Pack for Rocket, Luna, and yourself without forgetting the essentials.</p>
+    </section>
+
+    <section class="card">
+      <div class="date-row">
+        <label for="travelDate">Travel date</label>
+        <input id="travelDate" type="date" />
+      </div>
+
+      <div class="legend">
+        <span>✓ Ready</span>
+        <span>✕ Not needed</span>
+        <span>Tap again to clear</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>🐾 Rocket & Luna</h2>
+        <div class="count" id="petsCount">0 of 0 ready</div>
+      </div>
+
+      <div class="list" id="petsList"></div>
+
+      <div class="add-row">
+        <input id="petsNewItem" type="text" placeholder="Add another item" />
+        <button class="add-btn" onclick="addCustomItem('pets')">Add</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>🧳 Me</h2>
+        <div class="count" id="meCount">0 of 0 ready</div>
+      </div>
+
+      <div class="list" id="meList"></div>
+
+      <div class="add-row">
+        <input id="meNewItem" type="text" placeholder="Add another item" />
+        <button class="add-btn" onclick="addCustomItem('me')">Add</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="footer-actions">
+        <button class="reset-trip" onclick="resetTrip()">Reset Checks for New Trip</button>
+        <button class="clear-custom" onclick="clearCustomItems()">Remove Added Items</button>
+      </div>
+      <div class="saved-note">Your checklist saves automatically on this device.</div>
+    </section>
+  </main>
+
+  <script>
+    const DEFAULT_ITEMS = {
+      pets: [
+        "Cerenia - At least 2 hrs before",
+        "Stairs",
+        "Car carriers",
+        "Pee pads",
+        "Food",
+        "Water",
+        "Bowls",
+        "Snacks",
+        "Toys",
+        "Poop bags"
+      ],
+      me: [
+        "Clothes",
+        "Sleep pants",
+        "Slippers",
+        "Brush",
+        "Shampoo",
+        "Body soap",
+        "Toothbrush",
+        "Toothpaste",
+        "Aftershave",
+        "Meds",
+        "Fan",
+        "Blanket",
+        "Phone charger",
+        "Fire stick",
+        "Reading glasses",
+        "Snacks",
+        "Water"
+      ]
+    };
+
+    const STORAGE_KEY = "travelChecklistApp_v1";
+
+    let appData = loadData();
+
+    function makeDefaultData(){
+      return {
+        travelDate: "",
+        customItems: { pets: [], me: [] },
+        states: { pets: {}, me: {} }
+      };
+    }
+
+    function loadData(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        if(!saved) return makeDefaultData();
+
+        return {
+          travelDate: saved.travelDate || "",
+          customItems: {
+            pets: Array.isArray(saved.customItems?.pets) ? saved.customItems.pets : [],
+            me: Array.isArray(saved.customItems?.me) ? saved.customItems.me : []
+          },
+          states: {
+            pets: saved.states?.pets || {},
+            me: saved.states?.me || {}
+          }
+        };
+      }catch(error){
+        return makeDefaultData();
+      }
+    }
+
+    function saveData(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+    }
+
+    function getAllItems(section){
+      const defaults = DEFAULT_ITEMS[section].map((name, index) => ({
+        id: `default-${section}-${index}`,
+        name,
+        custom:false
+      }));
+
+      const custom = appData.customItems[section].map(item => ({
+        ...item,
+        custom:true
+      }));
+
+      return [...defaults, ...custom];
+    }
+
+    function render(){
+      document.getElementById("travelDate").value = appData.travelDate;
+
+      renderSection("pets");
+      renderSection("me");
+    }
+
+    function renderSection(section){
+      const list = document.getElementById(section === "pets" ? "petsList" : "meList");
+      list.innerHTML = "";
+
+      const items = getAllItems(section);
+      let readyCount = 0;
+
+      items.forEach(item => {
+        const state = appData.states[section][item.id] || "";
+        if(state === "ready") readyCount++;
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "item-wrap";
+
+        const row = document.createElement("div");
+        row.className = `item ${state}`;
+
+        const name = document.createElement("div");
+        name.className = "item-name";
+        name.textContent = item.name;
+
+        const actions = document.createElement("div");
+        actions.className = "actions";
+
+        const readyBtn = document.createElement("button");
+        readyBtn.className = `state-btn ready ${state === "ready" ? "active" : ""}`;
+        readyBtn.textContent = "✓";
+        readyBtn.setAttribute("aria-label", `Mark ${item.name} ready`);
+        readyBtn.onclick = () => setState(section, item.id, "ready");
+
+        const skipBtn = document.createElement("button");
+        skipBtn.className = `state-btn skip ${state === "skip" ? "active" : ""}`;
+        skipBtn.textContent = "✕";
+        skipBtn.setAttribute("aria-label", `Mark ${item.name} not needed`);
+        skipBtn.onclick = () => setState(section, item.id, "skip");
+
+        actions.append(readyBtn, skipBtn);
+        row.append(name, actions);
+        wrapper.appendChild(row);
+
+        if(item.custom){
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove-btn";
+          removeBtn.textContent = "Remove added item";
+          removeBtn.onclick = () => removeCustomItem(section, item.id);
+          wrapper.appendChild(removeBtn);
+        }
+
+        list.appendChild(wrapper);
+      });
+
+      const countEl = document.getElementById(section === "pets" ? "petsCount" : "meCount");
+      countEl.textContent = `${readyCount} of ${items.length} ready`;
+    }
+
+    function setState(section, id, newState){
+      const current = appData.states[section][id] || "";
+      appData.states[section][id] = current === newState ? "" : newState;
+      saveData();
+      renderSection(section);
+    }
+
+    function addCustomItem(section){
+      const input = document.getElementById(section === "pets" ? "petsNewItem" : "meNewItem");
+      const name = input.value.trim();
+
+      if(!name) return;
+
+      appData.customItems[section].push({
+        id: `custom-${section}-${Date.now()}-${Math.random().toString(16).slice(2)}`,
+        name
+      });
+
+      input.value = "";
+      saveData();
+      renderSection(section);
+    }
+
+    function removeCustomItem(section, id){
+      appData.customItems[section] = appData.customItems[section].filter(item => item.id !== id);
+      delete appData.states[section][id];
+      saveData();
+      renderSection(section);
+    }
+
+    function resetTrip(){
+      const confirmed = confirm("Clear all checkmarks, X marks, and the travel date? Your added items will stay.");
+      if(!confirmed) return;
+
+      appData.travelDate = "";
+      appData.states = { pets:{}, me:{} };
+      saveData();
+      render();
+    }
+
+    function clearCustomItems(){
+      const confirmed = confirm("Remove all items you added? The permanent checklist items will stay.");
+      if(!confirmed) return;
+
+      const customIds = [
+        ...appData.customItems.pets.map(item => item.id),
+        ...appData.customItems.me.map(item => item.id)
+      ];
+
+      customIds.forEach(id => {
+        delete appData.states.pets[id];
+        delete appData.states.me[id];
+      });
+
+      appData.customItems = { pets:[], me:[] };
+      saveData();
+      render();
+    }
+
+    document.getElementById("travelDate").addEventListener("change", event => {
+      appData.travelDate = event.target.value;
+      saveData();
+    });
+
+    document.getElementById("petsNewItem").addEventListener("keydown", event => {
+      if(event.key === "Enter") addCustomItem("pets");
+    });
+
+    document.getElementById("meNewItem").addEventListener("keydown", event => {
+      if(event.key === "Enter") addCustomItem("me");
+    });
+
+    render();
+  </script>
+</body>
+</html>
